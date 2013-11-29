@@ -25,9 +25,13 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 public class WeatherSearch extends Activity {
 
@@ -76,6 +80,44 @@ public class WeatherSearch extends Activity {
 				JSONObject weather=jo.getJSONObject("weather");
 				e.setText("4");
 				e.setText(weather.getString("img"));
+				
+				TableLayout tbl=(TableLayout) findViewById(R.id.tblWeather);
+				
+				int i;
+				
+				for (i=0;i<5;i++){
+					TableRow row=new TableRow(this);
+					TextView tv;
+					
+					tv=new TextView(this);
+					tv.setText("a"+i);
+					row.addView(tv);
+					
+					tv=new TextView(this);
+					tv.setText("b"+i);
+					row.addView(tv);
+					
+					tv=new TextView(this);
+					tv.setText("c"+i);
+					row.addView(tv);
+					
+					tv=new TextView(this);
+					tv.setText("d"+i);
+					row.addView(tv);
+					
+					tv=new TextView(this);
+					tv.setText("e"+i);
+					row.addView(tv);
+					
+					
+					
+					//tv.setBackgroundColor(Color.WHITE);
+					
+					
+					tbl.addView(row);
+				}
+				tbl.setBackgroundColor(Color.WHITE);
+				
 			}
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
