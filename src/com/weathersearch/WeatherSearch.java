@@ -265,25 +265,7 @@ public class WeatherSearch extends Activity {
 		String x, json;
 		TextView tv;
 
-		tv = (TextView) findViewById(R.id.cmdWeather);
-		tv.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				cmdWeatherD_click(v);
-			}
-		});
-
-		tv = (TextView) findViewById(R.id.cmdForecast);
-		tv.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				cmdForecastD_click(v);
-
-			}
-		});
-
+		
 		EditText e = (EditText) findViewById(R.id.editText1);
 		String l = e.getText().toString();
 		String type = null;
@@ -359,20 +341,20 @@ public class WeatherSearch extends Activity {
 
 				tv = (TextView) findViewById(R.id.txtCity);
 				tv.setText(loc.getString("city"));
+				tv.setVisibility(0);
 
 				tv = (TextView) findViewById(R.id.txtState);
 				tv.setText(loc.getString("region") + ", "
 						+ loc.getString("country"));
+				tv.setVisibility(0);
 
 				tv = (TextView) findViewById(R.id.txtCondition);
 				tv.setText(cond.getString("text"));
+				tv.setVisibility(0);
 
 				tv = (TextView) findViewById(R.id.txtTemp);
 				tv.setText(cond.getString("temp") + unit);
-
-				// degree="\u00b0"
-
-				// tv=(TextView)findViewById(R.id.txtCondition);
+				tv.setVisibility(0);
 
 				get = new HttpGet(weather.getString("img"));
 				res = cli.execute(get);
@@ -515,6 +497,29 @@ public class WeatherSearch extends Activity {
 				}
 				tbl.setBackgroundColor(Color.WHITE);
 
+				tv = (TextView) findViewById(R.id.cmdWeather);
+				tv.setVisibility(0);
+				tv.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						cmdWeatherD_click(v);
+					}
+				});
+
+				tv = (TextView) findViewById(R.id.txtForecast);
+				tv.setVisibility(0);
+				
+				tv = (TextView) findViewById(R.id.cmdForecast);
+				tv.setVisibility(0);
+				tv.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						cmdForecastD_click(v);
+
+					}
+				});
 			}
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
