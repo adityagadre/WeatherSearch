@@ -131,6 +131,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/cmdWeather"
         android:layout_below="@+id/cmdWeather"
+        android:layout_marginTop="36dp"
         android:onClick="cmdForecast_click"
         android:text="Share Weather Forecast"
         android:textAppearance="?android:attr/textAppearanceSmall" />

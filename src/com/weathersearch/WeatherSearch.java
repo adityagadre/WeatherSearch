@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -36,6 +37,8 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.facebook.*;
 import com.facebook.android.Facebook;
 import com.facebook.widget.WebDialog;
@@ -81,18 +84,17 @@ public class WeatherSearch extends Activity {
 									+ loc.getString("country"));
 
 					params.putString("caption",
-							"The current condition of " + loc.getString("city")+ " is "+ cond.getString("text"));
-					params.putString(
-							"description",
-							"Temperature is "+cond.getString("temp")+unit);
-					params.putString("link",
-							weather.getString("feed"));
-					params.putString("picture",
-							weather.getString("img"));
-					
-					JSONObject prop=new JSONObject("{\"Look at details: \": {\"text\": \"here\", \"href\": \"" + weather.getString("link") + "\"}}");
-					params.putString("properties",
-							prop.toString());
+							"The current condition of " + loc.getString("city")
+									+ " is " + cond.getString("text"));
+					params.putString("description",
+							"Temperature is " + cond.getString("temp") + unit);
+					params.putString("link", weather.getString("feed"));
+					params.putString("picture", weather.getString("img"));
+
+					JSONObject prop = new JSONObject(
+							"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
+									+ weather.getString("link") + "\"}}");
+					params.putString("properties", prop.toString());
 
 					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
 							WeatherSearch.this, Session.getActiveSession(),
@@ -137,19 +139,17 @@ public class WeatherSearch extends Activity {
 									+ loc.getString("region") + ", "
 									+ loc.getString("country"));
 
-					params.putString("caption",
-							"Weather forecast for city  " + loc.getString("city")+ ". ");
-					params.putString(
-							"description",
-							strForecast);
-					params.putString("link",
-							weather.getString("feed"));
+					params.putString("caption", "Weather forecast for city  "
+							+ loc.getString("city") + ". ");
+					params.putString("description", strForecast);
+					params.putString("link", weather.getString("feed"));
 					params.putString("picture",
 							"http://www-scf.usc.edu/~csci571/2013Fall/hw8/weather.jpg");
-					
-					JSONObject prop=new JSONObject("{\"Look at details: \": {\"text\": \"here\", \"href\": \"" + weather.getString("link") + "\"}}");
-					params.putString("properties",
-							prop.toString());
+
+					JSONObject prop = new JSONObject(
+							"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
+									+ weather.getString("link") + "\"}}");
+					params.putString("properties", prop.toString());
 
 					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
 							WeatherSearch.this, Session.getActiveSession(),
@@ -191,29 +191,57 @@ public class WeatherSearch extends Activity {
 				cmdWeather_click(v);
 			}
 		});
-		
+
 		tv = (TextView) findViewById(R.id.cmdForecast);
 		tv.setOnClickListener(new View.OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				cmdForecast_click(v);
-				
+
 			}
 		});
 
 		EditText e = (EditText) findViewById(R.id.editText1);
-		e.setText("Hello2");
+		String l=e.getText().toString();
+		String type=null;
+		
+		if(l.matches("\\d{5,5}"))
+		{
+			type="zip";
+		}
+		else if(l.matches("\\d*"))
+		{
+			Toast toast=Toast.makeText(this, "Invalid Zip Code: Must be 5 digits\nExample:90089", Toast.LENGTH_SHORT);
+			toast.show();	
+			return;
+		}
+		else if(l.matches("([a-zA-Z][a-zA-Z0-9 \\.']*,[ ]*){1,2}[a-zA-Z0-9 ]*"))
+		{
+			type="city";
+		}
+		else
+		{
+			Toast toast=Toast.makeText(this, "Invalid Location: Must be a city with state or country\nExample: Los Angeles, CA", Toast.LENGTH_SHORT);
+			toast.show();	
+			return;
+		}
+		
+		try {
+			l=java.net.URLEncoder.encode(l,"UTF-8");
+		} catch (UnsupportedEncodingException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
 		HttpClient cli = new DefaultHttpClient();
 		HttpGet get = new HttpGet(
-				"http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location=90007&type=zip&tempUnit=f");
+				"http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location=" + l + "&type="+ type + "&tempUnit=f");
 		// HttpGet get=new HttpGet("http://www.google.com");
 		try {
 			HttpResponse res = cli.execute(get);
 			StatusLine sl = res.getStatusLine();
-			e.setText("1");
 			if (sl.getStatusCode() == 200) {
-				e.setText("2");
 				HttpEntity ent = res.getEntity();
 				InputStream is = ent.getContent();
 				BufferedReader br = new BufferedReader(
@@ -223,7 +251,6 @@ public class WeatherSearch extends Activity {
 				}
 				is.close();
 				json = s.toString();
-				e.setText("3");
 				// e.setText("4");
 				// e.setText(json);
 
@@ -268,7 +295,7 @@ public class WeatherSearch extends Activity {
 				TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
 
 				int i;
-strForecast="";
+				strForecast = "";
 				for (i = 0; i < 5; i++) {
 
 					JSONObject obj = forecast.getJSONObject(i);
@@ -292,15 +319,17 @@ strForecast="";
 					row.addView(tv);
 
 					tbl.addView(row);
-					
-					//Append Forecast to the string 
-					strForecast+=obj.getString("day")+": " +obj.getString("text")+", " +obj.getString("high")+unit+"/"+obj.getString("low")+unit;
-					if(i<4)
-						strForecast+=";";
+
+					// Append Forecast to the string
+					strForecast += obj.getString("day") + ": "
+							+ obj.getString("text") + ", "
+							+ obj.getString("high") + unit + "/"
+							+ obj.getString("low") + unit;
+					if (i < 4)
+						strForecast += ";";
 					else
-						strForecast+=".";
-							
-					
+						strForecast += ".";
+
 				}
 				tbl.setBackgroundColor(Color.WHITE);
 
