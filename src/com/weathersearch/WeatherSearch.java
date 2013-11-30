@@ -26,6 +26,8 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -69,138 +71,194 @@ public class WeatherSearch extends Activity {
 		return true;
 	}
 
-	public void cmdWeather_click(View view) {
+	public void cmdWeatherD_click(View view) {
+		String[] s={"Post Current Weather","Cancel"};
+		AlertDialog.Builder b=new AlertDialog.Builder(WeatherSearch.this);
+		b.setTitle("Post To Facebook");
+		b.setItems(s, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(which==0)
+					cmdWeather_click();
+				
+			}
+		});
+		b.show();
+	}
+		
+	public void cmdWeather_click() {
+		Session s=Session.getActiveSession();
+		if(s!=null)
+		{
+			postWeather();
+			return;
+		}
+		
 		Session.openActiveSession(this, true, new Session.StatusCallback() {
 
 			@Override
 			public void call(Session session, SessionState state,
 					Exception exception) {
-				// TODO Auto-generated method stub
-				try {
-					Bundle params = new Bundle();
-
-					params.putString(
-							"name",
-							loc.getString("city") + ", "
-									+ loc.getString("region") + ", "
-									+ loc.getString("country"));
-
-					params.putString("caption",
-							"The current condition of " + loc.getString("city")
-									+ " is " + cond.getString("text"));
-					params.putString("description",
-							"Temperature is " + cond.getString("temp") + unit);
-					params.putString("link", weather.getString("feed"));
-					params.putString("picture", weather.getString("img"));
-
-					JSONObject prop = new JSONObject(
-							"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
-									+ weather.getString("link") + "\"}}");
-					params.putString("properties", prop.toString());
-
-					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
-							WeatherSearch.this, Session.getActiveSession(),
-							params)
-							.setOnCompleteListener(new WebDialog.OnCompleteListener() {
-
-								@Override
-								public void onComplete(Bundle values,
-										FacebookException error) {
-
-									if (error == null) {
-										String postid;
-										postid = values.getString("post_id");
-										if (postid == null) {
-											Toast toast = Toast.makeText(
-													WeatherSearch.this,
-													"Post was not published",
-													Toast.LENGTH_SHORT);
-											toast.show();
-										} else {
-											Toast toast = Toast.makeText(
-													WeatherSearch.this,
-													"Post was published",
-													Toast.LENGTH_SHORT);
-											toast.show();
-										}
-									}
-
-								}
-							})).build();
-					feedDialog.show();
-				} catch (JSONException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				postWeather();
 			}
 		});
 	}
+	
+	public void postWeather(){
+		try {
+			Bundle params = new Bundle();
 
-	public void cmdForecast_click(View view) {
+			params.putString(
+					"name",
+					loc.getString("city") + ", "
+							+ loc.getString("region") + ", "
+							+ loc.getString("country"));
+
+			params.putString("caption",
+					"The current condition of " + loc.getString("city")
+							+ " is " + cond.getString("text"));
+			params.putString("description",
+					"Temperature is " + cond.getString("temp") + unit);
+			params.putString("link", weather.getString("feed"));
+			params.putString("picture", weather.getString("img"));
+
+			JSONObject prop = new JSONObject(
+					"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
+							+ weather.getString("link") + "\"}}");
+			params.putString("properties", prop.toString());
+
+			WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
+					WeatherSearch.this, Session.getActiveSession(),
+					params)
+					.setOnCompleteListener(new WebDialog.OnCompleteListener() {
+
+						@Override
+						public void onComplete(Bundle values,
+								FacebookException error) {
+
+							if (error == null) {
+								String postid;
+								postid = values.getString("post_id");
+								if (postid == null) {
+									Toast toast = Toast.makeText(
+											WeatherSearch.this,
+											"Post was not published",
+											Toast.LENGTH_SHORT);
+									toast.show();
+								} else {
+									Toast toast = Toast.makeText(
+											WeatherSearch.this,
+											"Post was published",
+											Toast.LENGTH_SHORT);
+									toast.show();
+								}
+							}
+
+						}
+					})).build();
+			feedDialog.show();
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
+	public void cmdForecastD_click(View view) {
+		String[] s={"Post Weather Forecast","Cancel"};
+		AlertDialog.Builder b=new AlertDialog.Builder(WeatherSearch.this);
+		b.setTitle("Post To Facebook");
+		b.setItems(s, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(which==0)
+					cmdForecast_click();
+				
+			}
+		});
+		b.show();
+	}
+	
+
+	public void cmdForecast_click() {
+		Session s=Session.getActiveSession();
+		if(s!=null)
+		{
+			postForecast();
+			return;
+		}
+		
 		Session.openActiveSession(this, true, new Session.StatusCallback() {
 
 			@Override
 			public void call(Session session, SessionState state,
 					Exception exception) {
-				// TODO Auto-generated method stub
-				try {
-					Bundle params = new Bundle();
-
-					params.putString(
-							"name",
-							loc.getString("city") + ", "
-									+ loc.getString("region") + ", "
-									+ loc.getString("country"));
-
-					params.putString("caption", "Weather forecast for city  "
-							+ loc.getString("city") + ". ");
-					params.putString("description", strForecast);
-					params.putString("link", weather.getString("feed"));
-					params.putString("picture",
-							"http://www-scf.usc.edu/~csci571/2013Fall/hw8/weather.jpg");
-
-					JSONObject prop = new JSONObject(
-							"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
-									+ weather.getString("link") + "\"}}");
-					params.putString("properties", prop.toString());
-
-					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
-							WeatherSearch.this, Session.getActiveSession(),
-							params)
-							.setOnCompleteListener(new WebDialog.OnCompleteListener() {
-
-								@Override
-								public void onComplete(Bundle values,
-										FacebookException error) {
-
-									if (error == null) {
-										String postid;
-										postid = values.getString("post_id");
-										if (postid == null) {
-											Toast toast = Toast.makeText(
-													WeatherSearch.this,
-													"Post was not published",
-													Toast.LENGTH_SHORT);
-											toast.show();
-										} else {
-											Toast toast = Toast.makeText(
-													WeatherSearch.this,
-													"Post was published",
-													Toast.LENGTH_SHORT);
-											toast.show();
-										}
-									}
-
-								}
-							})).build();
-					feedDialog.show();
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
+				postForecast();
 			}
 		});
 	}
 
+	
+	public void postForecast()
+	{
+		try {
+			Bundle params = new Bundle();
+
+			params.putString(
+					"name",
+					loc.getString("city") + ", "
+							+ loc.getString("region") + ", "
+							+ loc.getString("country"));
+
+			params.putString("caption", "Weather forecast for city  "
+					+ loc.getString("city") + ". ");
+			params.putString("description", strForecast);
+			params.putString("link", weather.getString("feed"));
+			params.putString("picture",
+					"http://www-scf.usc.edu/~csci571/2013Fall/hw8/weather.jpg");
+
+			JSONObject prop = new JSONObject(
+					"{\"Look at details: \": {\"text\": \"here\", \"href\": \""
+							+ weather.getString("link") + "\"}}");
+			params.putString("properties", prop.toString());
+
+			WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
+					WeatherSearch.this, Session.getActiveSession(),
+					params)
+					.setOnCompleteListener(new WebDialog.OnCompleteListener() {
+
+						@Override
+						public void onComplete(Bundle values,
+								FacebookException error) {
+
+							if (error == null) {
+								String postid;
+								postid = values.getString("post_id");
+								if (postid == null) {
+									Toast toast = Toast.makeText(
+											WeatherSearch.this,
+											"Post was not published",
+											Toast.LENGTH_SHORT);
+									toast.show();
+								} else {
+									Toast toast = Toast.makeText(
+											WeatherSearch.this,
+											"Post was published",
+											Toast.LENGTH_SHORT);
+									toast.show();
+								}
+							}
+
+						}
+					})).build();
+			feedDialog.show();
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void btnSearch_Click(View view) {
 		StringBuilder s = new StringBuilder("");
@@ -212,7 +270,7 @@ public class WeatherSearch extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				cmdWeather_click(v);
+				cmdWeatherD_click(v);
 			}
 		});
 
@@ -221,7 +279,7 @@ public class WeatherSearch extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				cmdForecast_click(v);
+				cmdForecastD_click(v);
 
 			}
 		});
