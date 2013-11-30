@@ -35,12 +35,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/button1"
+            android:textColor="@android:color/white"
             android:checked="true"
             android:text="°F" />
 
         <RadioButton
             android:id="@+id/tmpC"
             android:layout_width="wrap_content"
+            android:textColor="@android:color/white"
             android:layout_height="wrap_content"
             android:text="°C" />
     </RadioGroup>
