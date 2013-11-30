@@ -34,6 +34,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -106,11 +107,22 @@ public class WeatherSearch extends Activity {
 										FacebookException error) {
 
 									if (error == null) {
-										EditText e = (EditText) findViewById(R.id.editText1);
-										e.setText("FB Logged in");
-
+										String postid;
+										postid = values.getString("post_id");
+										if (postid == null) {
+											Toast toast = Toast.makeText(
+													WeatherSearch.this,
+													"Post was not published",
+													Toast.LENGTH_SHORT);
+											toast.show();
+										} else {
+											Toast toast = Toast.makeText(
+													WeatherSearch.this,
+													"Post was published",
+													Toast.LENGTH_SHORT);
+											toast.show();
+										}
 									}
-									// TODO Auto-generated method stub
 
 								}
 							})).build();
@@ -161,17 +173,27 @@ public class WeatherSearch extends Activity {
 										FacebookException error) {
 
 									if (error == null) {
-										EditText e = (EditText) findViewById(R.id.editText1);
-										e.setText("FB Logged in");
-
+										String postid;
+										postid = values.getString("post_id");
+										if (postid == null) {
+											Toast toast = Toast.makeText(
+													WeatherSearch.this,
+													"Post was not published",
+													Toast.LENGTH_SHORT);
+											toast.show();
+										} else {
+											Toast toast = Toast.makeText(
+													WeatherSearch.this,
+													"Post was published",
+													Toast.LENGTH_SHORT);
+											toast.show();
+										}
 									}
-									// TODO Auto-generated method stub
 
 								}
 							})).build();
 					feedDialog.show();
 				} catch (JSONException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -203,40 +225,54 @@ public class WeatherSearch extends Activity {
 		});
 
 		EditText e = (EditText) findViewById(R.id.editText1);
-		String l=e.getText().toString();
-		String type=null;
-		
-		if(l.matches("\\d{5,5}"))
-		{
-			type="zip";
-		}
-		else if(l.matches("\\d*"))
-		{
-			Toast toast=Toast.makeText(this, "Invalid Zip Code: Must be 5 digits\nExample:90089", Toast.LENGTH_SHORT);
-			toast.show();	
+		String l = e.getText().toString();
+		String type = null;
+		String tempU;
+
+		if (l.matches("\\d{5,5}")) {
+			type = "zip";
+		} else if (l.matches("\\d*")) {
+			Toast toast = Toast.makeText(this,
+					"Invalid Zip Code: Must be 5 digits\nExample:90089",
+					Toast.LENGTH_SHORT);
+			toast.show();
+			return;
+		} else if (l
+				.matches("([a-zA-Z][a-zA-Z0-9 \\.']*,[ ]*){1,2}[a-zA-Z0-9 ]*")) {
+			type = "city";
+		} else {
+			Toast toast = Toast
+					.makeText(
+							this,
+							"Invalid Location: Must be a city with state or country\nExample: Los Angeles, CA",
+							Toast.LENGTH_SHORT);
+			toast.show();
 			return;
 		}
-		else if(l.matches("([a-zA-Z][a-zA-Z0-9 \\.']*,[ ]*){1,2}[a-zA-Z0-9 ]*"))
-		{
-			type="city";
-		}
-		else
-		{
-			Toast toast=Toast.makeText(this, "Invalid Location: Must be a city with state or country\nExample: Los Angeles, CA", Toast.LENGTH_SHORT);
-			toast.show();	
-			return;
-		}
-		
+
 		try {
-			l=java.net.URLEncoder.encode(l,"UTF-8");
+			l = java.net.URLEncoder.encode(l, "UTF-8");
 		} catch (UnsupportedEncodingException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		
+		RadioButton rb;
+		rb=(RadioButton)findViewById(R.id.tmpC);
+		if(rb.isChecked())
+		{
+			tempU="c";
+		}
+		else
+		{
+			tempU="f";
+		}
+		
+
 		HttpClient cli = new DefaultHttpClient();
 		HttpGet get = new HttpGet(
-				"http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location=" + l + "&type="+ type + "&tempUnit=f");
+				"http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location="
+						+ l + "&type=" + type + "&tempUnit="+tempU);
 		// HttpGet get=new HttpGet("http://www.google.com");
 		try {
 			HttpResponse res = cli.execute(get);
@@ -293,14 +329,43 @@ public class WeatherSearch extends Activity {
 				JSONArray forecast = weather.getJSONArray("forcast");
 
 				TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
-
+				tbl.removeAllViews();
 				int i;
 				strForecast = "";
+				
+				
+				TableRow row = new TableRow(this);
+				row.setBackgroundColor(Color.LTGRAY);
+				
+				int headersize=16;
+				tv = new TextView(this);
+				tv.setText("Day");
+				tv.setTextSize(headersize);
+				row.addView(tv);
+
+				tv = new TextView(this);
+				tv.setText("Weather");
+				tv.setTextSize(headersize);
+				row.addView(tv);
+
+				tv = new TextView(this);
+				tv.setText("High");
+				tv.setTextSize(headersize);
+				row.addView(tv);
+
+				tv = new TextView(this);
+				tv.setText("Low");
+				tv.setTextSize(headersize);
+				row.addView(tv);
+				
+				tbl.addView(row);
+				
+				
 				for (i = 0; i < 5; i++) {
 
 					JSONObject obj = forecast.getJSONObject(i);
 
-					TableRow row = new TableRow(this);
+					row = new TableRow(this);
 
 					tv = new TextView(this);
 					tv.setText(obj.getString("day"));

@@ -17,6 +17,7 @@
         android:ems="10"
         android:hint="Zip or Location"
         android:inputType="text"
+        android:text="90007"
         android:width="150dp" />
 
     <RadioGroup
@@ -32,6 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/button1"
+            android:checked="true"
             android:text="°F" />
 
         <RadioButton
@@ -74,8 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtState"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/ic_launcher" />
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:id="@+id/txtCondition"
