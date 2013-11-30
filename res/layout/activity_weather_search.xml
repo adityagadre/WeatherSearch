@@ -32,14 +32,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/button1"
-            android:onClick="onRadioButtonClicked"
             android:text="°F" />
 
         <RadioButton
             android:id="@+id/tmpC"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onRadioButtonClicked"
             android:text="°C" />
     </RadioGroup>
 
@@ -102,13 +100,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/editText1"
-        android:layout_below="@+id/txtFore"
+        android:layout_below="@+id/txtForecast"
         android:layout_centerVertical="true"
         android:background="#000000" >
     </TableLayout>
 
     <TextView
-        android:id="@+id/txtFore"
+        android:id="@+id/txtForecast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/editText1"
@@ -117,21 +115,23 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/cmdWeather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/editText1"
         android:layout_below="@+id/tblWeather"
         android:layout_marginTop="14dp"
+        android:onClick="cmdWeather_click"
         android:text="Share Current Weather"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/cmdForecast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView2"
-        android:layout_below="@+id/textView2"
+        android:layout_alignLeft="@+id/cmdWeather"
+        android:layout_below="@+id/cmdWeather"
+        android:onClick="cmdForecast_click"
         android:text="Share Weather Forecast"
         android:textAppearance="?android:attr/textAppearanceSmall" />
     
