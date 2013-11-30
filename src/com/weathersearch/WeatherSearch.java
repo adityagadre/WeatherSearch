@@ -38,8 +38,18 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import com.facebook.*;
 import com.facebook.android.Facebook;
+import com.facebook.widget.WebDialog;
+import com.facebook.widget.WebDialog.OnCompleteListener;
 
 public class WeatherSearch extends Activity {
+
+	JSONObject jo;
+	JSONObject weather;
+	JSONObject loc;
+	JSONObject cond;
+	JSONObject units;
+	String strForecast;
+	String unit;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,43 +65,143 @@ public class WeatherSearch extends Activity {
 	}
 
 	public void cmdWeather_click(View view) {
-		EditText e = (EditText) findViewById(R.id.editText1);
-		e.setText("1FB Logg ed in");
-		Session s;
 		Session.openActiveSession(this, true, new Session.StatusCallback() {
 
 			@Override
 			public void call(Session session, SessionState state,
 					Exception exception) {
 				// TODO Auto-generated method stub
-				EditText e = (EditText) findViewById(R.id.editText1);
-				e.setText("FB Logged in");
+				try {
+					Bundle params = new Bundle();
+
+					params.putString(
+							"name",
+							loc.getString("city") + ", "
+									+ loc.getString("region") + ", "
+									+ loc.getString("country"));
+
+					params.putString("caption",
+							"The current condition of " + loc.getString("city")+ " is "+ cond.getString("text"));
+					params.putString(
+							"description",
+							"Temperature is "+cond.getString("temp")+unit);
+					params.putString("link",
+							weather.getString("feed"));
+					params.putString("picture",
+							weather.getString("img"));
+					
+					JSONObject prop=new JSONObject("{\"Look at details: \": {\"text\": \"here\", \"href\": \"" + weather.getString("link") + "\"}}");
+					params.putString("properties",
+							prop.toString());
+
+					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
+							WeatherSearch.this, Session.getActiveSession(),
+							params)
+							.setOnCompleteListener(new WebDialog.OnCompleteListener() {
+
+								@Override
+								public void onComplete(Bundle values,
+										FacebookException error) {
+
+									if (error == null) {
+										EditText e = (EditText) findViewById(R.id.editText1);
+										e.setText("FB Logged in");
+
+									}
+									// TODO Auto-generated method stub
+
+								}
+							})).build();
+					feedDialog.show();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-		});                                                                                            
+		});
 	}
-//android.support.v4.content.LocalBroadcastManager
+
 	public void cmdForecast_click(View view) {
-		EditText e = (EditText) findViewById(R.id.editText1);
-		e.setText("Hello2");
+		Session.openActiveSession(this, true, new Session.StatusCallback() {
+
+			@Override
+			public void call(Session session, SessionState state,
+					Exception exception) {
+				// TODO Auto-generated method stub
+				try {
+					Bundle params = new Bundle();
+
+					params.putString(
+							"name",
+							loc.getString("city") + ", "
+									+ loc.getString("region") + ", "
+									+ loc.getString("country"));
+
+					params.putString("caption",
+							"Weather forecast for city  " + loc.getString("city")+ ". ");
+					params.putString(
+							"description",
+							strForecast);
+					params.putString("link",
+							weather.getString("feed"));
+					params.putString("picture",
+							"http://www-scf.usc.edu/~csci571/2013Fall/hw8/weather.jpg");
+					
+					JSONObject prop=new JSONObject("{\"Look at details: \": {\"text\": \"here\", \"href\": \"" + weather.getString("link") + "\"}}");
+					params.putString("properties",
+							prop.toString());
+
+					WebDialog feedDialog = (new WebDialog.FeedDialogBuilder(
+							WeatherSearch.this, Session.getActiveSession(),
+							params)
+							.setOnCompleteListener(new WebDialog.OnCompleteListener() {
+
+								@Override
+								public void onComplete(Bundle values,
+										FacebookException error) {
+
+									if (error == null) {
+										EditText e = (EditText) findViewById(R.id.editText1);
+										e.setText("FB Logged in");
+
+									}
+									// TODO Auto-generated method stub
+
+								}
+							})).build();
+					feedDialog.show();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public void btnSearch_Click(View view) {
 		StringBuilder s = new StringBuilder("");
 		String x, json;
 		TextView tv;
-		
-		
-		tv=(TextView)findViewById(R.id.cmdWeather);
+
+		tv = (TextView) findViewById(R.id.cmdWeather);
 		tv.setOnClickListener(new View.OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				cmdWeather_click(v);
 			}
 		});
 		
-		
-		
+		tv = (TextView) findViewById(R.id.cmdForecast);
+		tv.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				cmdForecast_click(v);
+				
+			}
+		});
+
 		EditText e = (EditText) findViewById(R.id.editText1);
 		e.setText("Hello2");
 		HttpClient cli = new DefaultHttpClient();
@@ -117,12 +227,12 @@ public class WeatherSearch extends Activity {
 				// e.setText("4");
 				// e.setText(json);
 
-				JSONObject jo = new JSONObject(json);
-				JSONObject weather = jo.getJSONObject("weather");
-				JSONObject loc = weather.getJSONObject("location");
-				JSONObject cond = weather.getJSONObject("condition");
-				JSONObject units = weather.getJSONObject("units");
-				String unit = "\u00b0" + units.getString("temperature");
+				jo = new JSONObject(json);
+				weather = jo.getJSONObject("weather");
+				loc = weather.getJSONObject("location");
+				cond = weather.getJSONObject("condition");
+				units = weather.getJSONObject("units");
+				unit = "\u00b0" + units.getString("temperature");
 
 				tv = (TextView) findViewById(R.id.txtCity);
 				tv.setText(loc.getString("city"));
@@ -158,7 +268,7 @@ public class WeatherSearch extends Activity {
 				TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
 
 				int i;
-
+strForecast="";
 				for (i = 0; i < 5; i++) {
 
 					JSONObject obj = forecast.getJSONObject(i);
@@ -181,9 +291,16 @@ public class WeatherSearch extends Activity {
 					tv.setText(obj.getString("low") + unit);
 					row.addView(tv);
 
-					// tv.setBackgroundColor(Color.WHITE);
-
 					tbl.addView(row);
+					
+					//Append Forecast to the string 
+					strForecast+=obj.getString("day")+": " +obj.getString("text")+", " +obj.getString("high")+unit+"/"+obj.getString("low")+unit;
+					if(i<4)
+						strForecast+=";";
+					else
+						strForecast+=".";
+							
+					
 				}
 				tbl.setBackgroundColor(Color.WHITE);
 
