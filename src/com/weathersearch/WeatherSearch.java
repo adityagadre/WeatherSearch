@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -57,6 +58,89 @@ public class WeatherSearch extends Activity {
 	JSONObject units;
 	String strForecast;
 	String unit;
+
+	public class AsyncJson extends AsyncTask<String, Integer, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			HttpClient cli = new DefaultHttpClient();
+			HttpGet get = new HttpGet(params[0]);
+
+			StringBuilder s = new StringBuilder("");
+			String x, json = "";
+			// HttpGet get=new HttpGet("http://www.google.com");
+
+			HttpResponse res;
+			try {
+				res = cli.execute(get);
+
+				StatusLine sl = res.getStatusLine();
+				if (sl.getStatusCode() == 200) {
+					HttpEntity ent = res.getEntity();
+					InputStream is = ent.getContent();
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(is));
+					while ((x = br.readLine()) != null) {
+						s.append(x);
+					}
+					is.close();
+					json = s.toString();
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return json;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			populatedata(result);
+		}
+	}
+	
+	public class AsyncImage extends AsyncTask<String, Integer, Bitmap> {
+
+		@Override
+		protected Bitmap doInBackground(String... params) {
+			HttpClient cli = new DefaultHttpClient();
+			HttpGet get = new HttpGet(params[0]);
+			Bitmap bmp=null;
+			// HttpGet get=new HttpGet("http://www.google.com");
+
+			HttpResponse res;
+			try {
+				res = cli.execute(get);
+
+				StatusLine sl = res.getStatusLine();
+				if (sl.getStatusCode() == 200) {
+					HttpEntity ent = res.getEntity();
+					InputStream is = ent.getContent();
+					
+					bmp = BitmapFactory.decodeStream(is);
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return bmp;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			showImage(result);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -251,8 +335,6 @@ public class WeatherSearch extends Activity {
 
 	@SuppressWarnings("deprecation")
 	public void btnSearch_Click(View view) {
-		StringBuilder s = new StringBuilder("");
-		String x, json;
 		TextView tv;
 
 		EditText e = (EditText) findViewById(R.id.editText1);
@@ -296,256 +378,230 @@ public class WeatherSearch extends Activity {
 			tempU = "f";
 		}
 
-		HttpClient cli = new DefaultHttpClient();
-		HttpGet get = new HttpGet(
-				"http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location="
-						+ l + "&type=" + type + "&tempUnit=" + tempU);
-		// HttpGet get=new HttpGet("http://www.google.com");
+		String[] params = { "http://cs-server.usc.edu:12375/examples/servlet/WeatherServlet?location="
+				+ l + "&type=" + type + "&tempUnit=" + tempU };
+		(new AsyncJson()).execute(params);
+	}
+
+	public void showImage(Bitmap bmp)
+	{
+		ImageView iv = (ImageView) findViewById(R.id.imgCond);
+		 iv.setVisibility(0); 
+		 iv.setImageBitmap(bmp);
+	}
+	
+	public void populatedata(String json) {
+		TextView tv;
 		try {
-			HttpResponse res = cli.execute(get);
-			StatusLine sl = res.getStatusLine();
-			if (sl.getStatusCode() == 200) {
-				HttpEntity ent = res.getEntity();
-				InputStream is = ent.getContent();
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(is));
-				while ((x = br.readLine()) != null) {
-					s.append(x);
-				}
-				is.close();
-				json = s.toString();
+			jo = new JSONObject(json);
 
-				jo = new JSONObject(json);
-				try {
-					weather = jo.getJSONObject("weather");
-				} catch (JSONException e1) {
-					tv = (TextView) findViewById(R.id.txtCity);
-					tv.setText("No Results Found!");
-					tv.setVisibility(0);
-					
-					tv = (TextView) findViewById(R.id.txtState);
-					tv.setVisibility(4);
-					tv = (TextView) findViewById(R.id.txtCondition);
-					tv.setVisibility(4);
-					tv = (TextView) findViewById(R.id.txtTemp);
-					tv.setVisibility(4);
-					ImageView iv = (ImageView) findViewById(R.id.imgCond);
-					iv.setVisibility(4);
-					TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
-					tbl.removeAllViews();
-					
-					
-					tv = (TextView) findViewById(R.id.txtForecast);
-					tv.setVisibility(4);
-
-					tv = (TextView) findViewById(R.id.cmdForecast);
-					tv.setVisibility(4);
-					tv = (TextView) findViewById(R.id.cmdWeather);
-					tv.setVisibility(4);
-					
-					return;
-				}
-
-				loc=weather.getJSONObject("location");
-				cond = weather.getJSONObject("condition");
-				units = weather.getJSONObject("units");
-				unit = "\u00b0" + units.getString("temperature");
-
+			try {
+				weather = jo.getJSONObject("weather");
+			} catch (JSONException e1) {
 				tv = (TextView) findViewById(R.id.txtCity);
-				tv.setText(loc.getString("city"));
+				tv.setText("No Results Found!");
 				tv.setVisibility(0);
 
 				tv = (TextView) findViewById(R.id.txtState);
-				tv.setText(loc.getString("region") + ", "
-						+ loc.getString("country"));
-				tv.setVisibility(0);
-
+				tv.setVisibility(4);
 				tv = (TextView) findViewById(R.id.txtCondition);
-				tv.setText(cond.getString("text"));
-				tv.setVisibility(0);
-
+				tv.setVisibility(4);
 				tv = (TextView) findViewById(R.id.txtTemp);
-				tv.setText(cond.getString("temp") + unit);
-				tv.setVisibility(0);
-
-				get = new HttpGet(weather.getString("img"));
-				res = cli.execute(get);
-				sl = res.getStatusLine();
-				if (sl.getStatusCode() == 200) {
-					Bitmap bmp;
-					ent = res.getEntity();
-					is = ent.getContent();
-					bmp = BitmapFactory.decodeStream(is);
-					ImageView iv = (ImageView) findViewById(R.id.imgCond);
-					iv.setVisibility(0);
-					iv.setImageBitmap(bmp);
-				}
-
-				JSONArray forecast = weather.getJSONArray("forcast");
-
+				tv.setVisibility(4);
+				ImageView iv = (ImageView) findViewById(R.id.imgCond);
+				iv.setVisibility(4);
 				TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
 				tbl.removeAllViews();
-				int i;
-				strForecast = "";
 
-				TableRow row = new TableRow(this);
-				row.setBackgroundColor(Color.LTGRAY);
+				tv = (TextView) findViewById(R.id.txtForecast);
+				tv.setVisibility(4);
 
-				int headersize = 16;
-				int rowfont = 14;
+				tv = (TextView) findViewById(R.id.cmdForecast);
+				tv.setVisibility(4);
+				tv = (TextView) findViewById(R.id.cmdWeather);
+				tv.setVisibility(4);
+
+				return;
+			}
+
+			loc = weather.getJSONObject("location");
+			cond = weather.getJSONObject("condition");
+			units = weather.getJSONObject("units");
+			unit = "\u00b0" + units.getString("temperature");
+
+			tv = (TextView) findViewById(R.id.txtCity);
+			tv.setText(loc.getString("city"));
+			tv.setVisibility(0);
+
+			tv = (TextView) findViewById(R.id.txtState);
+			tv.setText(loc.getString("region") + ", "
+					+ loc.getString("country"));
+			tv.setVisibility(0);
+
+			tv = (TextView) findViewById(R.id.txtCondition);
+			tv.setText(cond.getString("text"));
+			tv.setVisibility(0);
+
+			tv = (TextView) findViewById(R.id.txtTemp);
+			tv.setText(cond.getString("temp") + unit);
+			tv.setVisibility(0);
+
+			String[] params={weather.getString("img")};
+			(new AsyncImage()).execute(params);
+			
+
+			JSONArray forecast = weather.getJSONArray("forcast");
+
+			TableLayout tbl = (TableLayout) findViewById(R.id.tblWeather);
+			tbl.removeAllViews();
+			int i;
+			strForecast = "";
+
+			TableRow row = new TableRow(this);
+			row.setBackgroundColor(Color.LTGRAY);
+
+			int headersize = 16;
+			int rowfont = 14;
+
+			tv = new TextView(this);
+			tv.setText("Day");
+			tv.setTextSize(headersize);
+			tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.thead));
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			tv.setWidth(90);
+			row.addView(tv);
+
+			tv = new TextView(this);
+			tv.setText("Weather");
+			tv.setTextSize(headersize);
+			tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.thead));
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			tv.setWidth(190);
+			row.addView(tv);
+
+			tv = new TextView(this);
+			tv.setText("High");
+			tv.setTextSize(headersize);
+			tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.thead));
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			tv.setWidth(90);
+			row.addView(tv);
+
+			tv = new TextView(this);
+			tv.setText("Low");
+			tv.setTextSize(headersize);
+			tv.setBackgroundDrawable(getResources().getDrawable(
+					R.drawable.thead));
+			tv.setGravity(Gravity.CENTER_HORIZONTAL);
+			tv.setWidth(90);
+			row.addView(tv);
+
+			tbl.addView(row);
+
+			for (i = 0; i < 5; i++) {
+
+				JSONObject obj = forecast.getJSONObject(i);
+
+				row = new TableRow(this);
 
 				tv = new TextView(this);
-				tv.setText("Day");
-				tv.setTextSize(headersize);
-				tv.setBackgroundDrawable(getResources().getDrawable(
-						R.drawable.thead));
+				tv.setText(obj.getString("day"));
 				tv.setGravity(Gravity.CENTER_HORIZONTAL);
-				tv.setWidth(90);
+				tv.setTextSize(rowfont);
+				if ((i & 1) == 0) {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row1));
+				} else {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row2));
+				}
 				row.addView(tv);
 
 				tv = new TextView(this);
-				tv.setText("Weather");
-				tv.setTextSize(headersize);
-				tv.setBackgroundDrawable(getResources().getDrawable(
-						R.drawable.thead));
+				tv.setText(obj.getString("text"));
 				tv.setGravity(Gravity.CENTER_HORIZONTAL);
-				tv.setWidth(190);
+				tv.setTextSize(rowfont);
+				if ((i & 1) == 0) {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row1));
+				} else {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row2));
+				}
 				row.addView(tv);
 
 				tv = new TextView(this);
-				tv.setText("High");
-				tv.setTextSize(headersize);
-				tv.setBackgroundDrawable(getResources().getDrawable(
-						R.drawable.thead));
+				tv.setText(obj.getString("high") + unit);
 				tv.setGravity(Gravity.CENTER_HORIZONTAL);
-				tv.setWidth(90);
+				tv.setTextSize(rowfont);
+				tv.setTextColor(0xffFF9900);
+				if ((i & 1) == 0) {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row1));
+				} else {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row2));
+				}
 				row.addView(tv);
 
 				tv = new TextView(this);
-				tv.setText("Low");
-				tv.setTextSize(headersize);
-				tv.setBackgroundDrawable(getResources().getDrawable(
-						R.drawable.thead));
+				tv.setText(obj.getString("low") + unit);
 				tv.setGravity(Gravity.CENTER_HORIZONTAL);
-				tv.setWidth(90);
+				tv.setTextSize(rowfont);
+				tv.setTextColor(0xff3399FF);
+				if ((i & 1) == 0) {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row1));
+				} else {
+					tv.setBackgroundDrawable(getResources().getDrawable(
+							R.drawable.row2));
+				}
 				row.addView(tv);
 
 				tbl.addView(row);
 
-				for (i = 0; i < 5; i++) {
+				// Append Forecast to the string
+				strForecast += obj.getString("day") + ": "
+						+ obj.getString("text") + ", " + obj.getString("high")
+						+ unit + "/" + obj.getString("low") + unit;
+				if (i < 4)
+					strForecast += ";";
+				else
+					strForecast += ".";
 
-					JSONObject obj = forecast.getJSONObject(i);
+			}
+			tbl.setBackgroundColor(Color.WHITE);
 
-					row = new TableRow(this);
+			tv = (TextView) findViewById(R.id.cmdWeather);
+			tv.setVisibility(0);
+			tv.setOnClickListener(new View.OnClickListener() {
 
-					tv = new TextView(this);
-					tv.setText(obj.getString("day"));
-					tv.setGravity(Gravity.CENTER_HORIZONTAL);
-					tv.setTextSize(rowfont);
-					if ((i & 1) == 0) {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row1));
-					} else {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row2));
-					}
-					row.addView(tv);
+				@Override
+				public void onClick(View v) {
+					cmdWeatherD_click(v);
+				}
+			});
 
-					tv = new TextView(this);
-					tv.setText(obj.getString("text"));
-					tv.setGravity(Gravity.CENTER_HORIZONTAL);
-					tv.setTextSize(rowfont);
-					if ((i & 1) == 0) {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row1));
-					} else {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row2));
-					}
-					row.addView(tv);
+			tv = (TextView) findViewById(R.id.txtForecast);
+			tv.setVisibility(0);
 
-					tv = new TextView(this);
-					tv.setText(obj.getString("high") + unit);
-					tv.setGravity(Gravity.CENTER_HORIZONTAL);
-					tv.setTextSize(rowfont);
-					tv.setTextColor(0xffFF9900);
-					if ((i & 1) == 0) {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row1));
-					} else {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row2));
-					}
-					row.addView(tv);
+			tv = (TextView) findViewById(R.id.cmdForecast);
+			tv.setVisibility(0);
+			tv.setOnClickListener(new View.OnClickListener() {
 
-					tv = new TextView(this);
-					tv.setText(obj.getString("low") + unit);
-					tv.setGravity(Gravity.CENTER_HORIZONTAL);
-					tv.setTextSize(rowfont);
-					tv.setTextColor(0xff3399FF);
-					if ((i & 1) == 0) {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row1));
-					} else {
-						tv.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.row2));
-					}
-					row.addView(tv);
-
-					tbl.addView(row);
-
-					// Append Forecast to the string
-					strForecast += obj.getString("day") + ": "
-							+ obj.getString("text") + ", "
-							+ obj.getString("high") + unit + "/"
-							+ obj.getString("low") + unit;
-					if (i < 4)
-						strForecast += ";";
-					else
-						strForecast += ".";
+				@Override
+				public void onClick(View v) {
+					cmdForecastD_click(v);
 
 				}
-				tbl.setBackgroundColor(Color.WHITE);
-
-				tv = (TextView) findViewById(R.id.cmdWeather);
-				tv.setVisibility(0);
-				tv.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						cmdWeatherD_click(v);
-					}
-				});
-
-				tv = (TextView) findViewById(R.id.txtForecast);
-				tv.setVisibility(0);
-
-				tv = (TextView) findViewById(R.id.cmdForecast);
-				tv.setVisibility(0);
-				tv.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						cmdForecastD_click(v);
-
-					}
-				});
-			} else {
-				Toast toast = Toast.makeText(this, "HTTP Connection Error",
-						Toast.LENGTH_SHORT);
-				toast.show();
-				return;
-			}
-		} catch (ClientProtocolException e1) {
+			});
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (JSONException e1) {
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
-
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {

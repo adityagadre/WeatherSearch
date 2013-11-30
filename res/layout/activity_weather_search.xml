@@ -19,7 +19,6 @@
         android:ems="10"
         android:hint="Zip or Location"
         android:inputType="text"
-        android:text="Faltuki,Query"
         android:width="140dp" />
 
     <RadioGroup
