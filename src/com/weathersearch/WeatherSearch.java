@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -200,6 +201,7 @@ public class WeatherSearch extends Activity {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	public void btnSearch_Click(View view) {
 		StringBuilder s = new StringBuilder("");
 		String x, json;
@@ -338,24 +340,39 @@ public class WeatherSearch extends Activity {
 				row.setBackgroundColor(Color.LTGRAY);
 				
 				int headersize=16;
+				int rowfont=14;
+				
+				
 				tv = new TextView(this);
 				tv.setText("Day");
 				tv.setTextSize(headersize);
+				tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.thead));
+				tv.setGravity(Gravity.CENTER_HORIZONTAL);
+				tv.setWidth(90);
 				row.addView(tv);
 
 				tv = new TextView(this);
 				tv.setText("Weather");
 				tv.setTextSize(headersize);
+				tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.thead));
+				tv.setGravity(Gravity.CENTER_HORIZONTAL);
+				tv.setWidth(190);
 				row.addView(tv);
 
 				tv = new TextView(this);
 				tv.setText("High");
 				tv.setTextSize(headersize);
+				tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.thead));
+				tv.setGravity(Gravity.CENTER_HORIZONTAL);
+				tv.setWidth(90);
 				row.addView(tv);
 
 				tv = new TextView(this);
 				tv.setText("Low");
 				tv.setTextSize(headersize);
+				tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.thead));
+				tv.setGravity(Gravity.CENTER_HORIZONTAL);
+				tv.setWidth(90);
 				row.addView(tv);
 				
 				tbl.addView(row);
@@ -369,18 +386,60 @@ public class WeatherSearch extends Activity {
 
 					tv = new TextView(this);
 					tv.setText(obj.getString("day"));
+					tv.setGravity(Gravity.CENTER_HORIZONTAL);
+					tv.setTextSize(rowfont);
+					if((i & 1)==0)
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row1));						
+					}
+					else
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row2));
+					}
 					row.addView(tv);
 
 					tv = new TextView(this);
 					tv.setText(obj.getString("text"));
+					tv.setGravity(Gravity.CENTER_HORIZONTAL);
+					tv.setTextSize(rowfont);
+					if((i & 1)==0)
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row1));						
+					}
+					else
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row2));
+					}
 					row.addView(tv);
 
 					tv = new TextView(this);
 					tv.setText(obj.getString("high") + unit);
+					tv.setGravity(Gravity.CENTER_HORIZONTAL);
+					tv.setTextSize(rowfont);
+					tv.setTextColor(0xffFF9900);
+					if((i & 1)==0)
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row1));						
+					}
+					else
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row2));
+					}
 					row.addView(tv);
 
 					tv = new TextView(this);
 					tv.setText(obj.getString("low") + unit);
+					tv.setGravity(Gravity.CENTER_HORIZONTAL);
+					tv.setTextSize(rowfont);
+					tv.setTextColor(0xff3399FF);
+					if((i & 1)==0)
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row1));						
+					}
+					else
+					{
+						tv.setBackgroundDrawable(getResources().getDrawable(R.drawable.row2));
+					}
 					row.addView(tv);
 
 					tbl.addView(row);

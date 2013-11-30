@@ -82,7 +82,7 @@
         android:id="@+id/txtCondition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtState"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/imgCond"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -92,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtCondition"
-        android:layout_toRightOf="@+id/editText1"
+        android:layout_centerHorizontal="true"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -100,7 +100,7 @@
         android:id="@+id/tblWeather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/txtForecast"
         android:layout_centerVertical="true"
         android:background="#000000" >
@@ -110,7 +110,7 @@
         android:id="@+id/txtForecast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
+        android:layout_alignLeft="@+id/tblWeather"
         android:layout_below="@+id/txtTemp"
         android:text="Forecast"
         android:textAppearance="?android:attr/textAppearanceSmall" />
