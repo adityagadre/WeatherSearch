@@ -72,7 +72,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/imgCond"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtState"
@@ -84,7 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/txtState"
-        android:layout_below="@+id/imageView1"
+        android:layout_below="@+id/imgCond"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 

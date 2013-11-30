@@ -27,7 +27,7 @@ public final class R {
         public static final int action_settings=0x7f08000e;
         public static final int button1=0x7f080003;
         public static final int editText1=0x7f080000;
-        public static final int imageView1=0x7f080007;
+        public static final int imgCond=0x7f080007;
         public static final int radioGroup1=0x7f080001;
         public static final int tblWeather=0x7f08000a;
         public static final int textView2=0x7f08000c;

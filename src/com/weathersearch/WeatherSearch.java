@@ -25,10 +25,13 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -52,6 +55,7 @@ public class WeatherSearch extends Activity {
     {
     	StringBuilder s=new StringBuilder("");
     	String x,json;
+    	TextView tv;
     	EditText e=(EditText)findViewById(R.id.editText1);
     	e.setText("Hello2");
     	HttpClient cli=new DefaultHttpClient();
@@ -71,6 +75,7 @@ public class WeatherSearch extends Activity {
 				{
 					s.append(x);
 				}
+				is.close();
 				json=s.toString();
 				e.setText("3");
 				//e.setText("4");
@@ -78,38 +83,68 @@ public class WeatherSearch extends Activity {
 				
 				JSONObject jo= new JSONObject(json);
 				JSONObject weather=jo.getJSONObject("weather");
-				e.setText("4");
-				e.setText(weather.getString("img"));
+				JSONObject loc=weather.getJSONObject("location");
+				JSONObject cond=weather.getJSONObject("condition");
+				JSONObject units=weather.getJSONObject("units");
+				String unit="\u00b0"+units.getString("temperature");
+				
+				tv=(TextView)findViewById(R.id.txtCity);
+				tv.setText(loc.getString("city"));
+				
+				tv=(TextView)findViewById(R.id.txtState);
+				tv.setText(loc.getString("region") + ", " + loc.getString("country"));
+				
+				tv=(TextView)findViewById(R.id.txtCondition);
+				tv.setText(cond.getString("text"));
+				
+				tv=(TextView)findViewById(R.id.txtTemp);
+				tv.setText(cond.getString("temp")+unit );
+				
+				//  degree="\u00b0"
+				
+				//tv=(TextView)findViewById(R.id.txtCondition);
+				
+				get=new HttpGet(weather.getString("img"));
+				res=cli.execute(get);
+				sl=res.getStatusLine();
+				if(sl.getStatusCode()==200)
+				{
+					Bitmap bmp;
+					ent=res.getEntity();
+					is=ent.getContent();
+					bmp=BitmapFactory.decodeStream(is);
+					ImageView iv=(ImageView)findViewById(R.id.imgCond);
+					iv.setImageBitmap(bmp);
+				}
+				
+				JSONArray forecast=weather.getJSONArray("forcast");
 				
 				TableLayout tbl=(TableLayout) findViewById(R.id.tblWeather);
 				
 				int i;
 				
 				for (i=0;i<5;i++){
+					
+					JSONObject obj=forecast.getJSONObject(i);
+					
 					TableRow row=new TableRow(this);
-					TextView tv;
+					
 					
 					tv=new TextView(this);
-					tv.setText("a"+i);
+					tv.setText(obj.getString("day"));
 					row.addView(tv);
 					
 					tv=new TextView(this);
-					tv.setText("b"+i);
+					tv.setText(obj.getString("text"));
 					row.addView(tv);
 					
 					tv=new TextView(this);
-					tv.setText("c"+i);
+					tv.setText(obj.getString("high")+unit);
 					row.addView(tv);
 					
 					tv=new TextView(this);
-					tv.setText("d"+i);
+					tv.setText(obj.getString("low")+unit);
 					row.addView(tv);
-					
-					tv=new TextView(this);
-					tv.setText("e"+i);
-					row.addView(tv);
-					
-					
 					
 					//tv.setBackgroundColor(Color.WHITE);
 					
