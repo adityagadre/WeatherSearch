@@ -15,11 +15,11 @@
         android:layout_height="60px"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:background="@drawable/textbox1"
         android:ems="10"
         android:hint="Zip or Location"
         android:inputType="text"
-        android:text="90007"
-        android:background="@drawable/textbox1"
+        android:text="Faltuki,Query"
         android:width="140dp" />
 
     <RadioGroup
